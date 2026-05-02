@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Wand2, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useMe, postJSON, refreshAll } from "@/lib/api";
 import { useToast } from "@/components/Toast";
@@ -42,7 +42,14 @@ function LogInner() {
   const [portion, setPortion] = useState<Portion>("medium");
   const [addOns, setAddOns] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ scoreChange: number; insight: string; food: Food } | null>(null);
+  const [subStep, setSubStep] = useState<"list" | "describe">("list");
+  const [description, setDescription] = useState("");
+  const [result, setResult] = useState<{
+    scoreChange: number;
+    insight: string;
+    food: Food;
+    fromDescription?: boolean;
+  } | null>(null);
 
   if (!data) return null;
   const u = data.user;
@@ -83,7 +90,39 @@ function LogInner() {
     setFoodId(null);
     setPortion("medium");
     setAddOns([]);
+    setSubStep("list");
+    setDescription("");
     setResult(null);
+  };
+
+  const submitDescription = async () => {
+    if (!mealType || !description.trim()) return;
+    setBusy(true);
+    try {
+      const res = await postJSON<{
+        matched: { foodId: string; foodName: string; portion: Portion; addOns: string[] };
+        meal: { scoreChange: number };
+        insight: string;
+      }>("/api/meals/describe", { mealType, description: description.trim() });
+      await refreshAll();
+      const matchedFood = getFood(res.matched.foodId);
+      if (!matchedFood) {
+        toast("Couldn't match the meal — try the picker.", "error");
+        return;
+      }
+      setPortion(res.matched.portion);
+      setAddOns(res.matched.addOns);
+      setResult({
+        scoreChange: res.meal.scoreChange,
+        insight: res.insight,
+        food: matchedFood,
+        fromDescription: true,
+      });
+    } catch (e: any) {
+      toast(e.message || "Something went wrong.", "error");
+    } finally {
+      setBusy(false);
+    }
   };
 
   // Result modal
@@ -95,9 +134,16 @@ function LogInner() {
           animate={{ opacity: 1, y: 0 }}
           className="ee-card p-7 text-center mb-4"
         >
+          {result.fromDescription && (
+            <div className="ee-pill mb-3 !bg-mango/20 !text-mango-dark inline-flex items-center gap-1">
+              <Wand2 size={11} /> Detected from your description
+            </div>
+          )}
           <div className="text-6xl mb-2">{result.food.emoji}</div>
           <div className="font-display text-2xl font-bold">{result.food.name}</div>
-          <div className="text-soft text-sm capitalize mt-1">{portion} portion</div>
+          <div className="text-soft text-sm capitalize mt-1">
+            {portion} portion{addOns.length > 0 ? ` · with ${addOns.join(", ")}` : ""}
+          </div>
           <motion.div
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
@@ -166,12 +212,27 @@ function LogInner() {
           </motion.div>
         )}
 
-        {step === 1 && mealType && (
-          <motion.div key="1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        {step === 1 && mealType && subStep === "list" && (
+          <motion.div key="1-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="flex items-center justify-between mb-3">
               <div className="text-soft text-sm">Pick what you ate</div>
               <button onClick={() => setStep(0)} className="text-soft text-xs">change meal</button>
             </div>
+
+            <button
+              onClick={() => setSubStep("describe")}
+              className="w-full mb-3 px-4 py-3.5 rounded-3xl border-2 border-dashed border-mango bg-mango/10 text-left flex items-center gap-3 active:scale-[0.99] transition"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-mango/20 flex items-center justify-center text-mango-dark">
+                <Wand2 size={18} />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-sm">Don't see what you ate?</div>
+                <div className="text-[11px] text-soft">Describe it — AI will figure it out</div>
+              </div>
+              <Sparkles size={16} className="text-mango-dark" />
+            </button>
+
             <div className="grid grid-cols-2 gap-3">
               {visibleFoods.map((f) => (
                 <button
@@ -189,6 +250,58 @@ function LogInner() {
                   </div>
                 </button>
               ))}
+            </div>
+          </motion.div>
+        )}
+
+        {step === 1 && mealType && subStep === "describe" && (
+          <motion.div key="1-describe" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="flex items-center gap-2 mb-3">
+              <button
+                onClick={() => setSubStep("list")}
+                disabled={busy}
+                className="w-8 h-8 rounded-full bg-charcoal/5 flex items-center justify-center"
+                aria-label="Back to food list"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <div className="text-soft text-sm capitalize">Describe your {mealType}</div>
+            </div>
+
+            <textarea
+              autoFocus
+              value={description}
+              onChange={(e) => setDescription(e.target.value.slice(0, 240))}
+              placeholder="e.g. samosa with chai and a bit of curd"
+              disabled={busy}
+              rows={4}
+              className="w-full px-4 py-3 rounded-3xl bg-white border-2 border-charcoal/10 focus:outline-none focus:border-charcoal/30 font-medium resize-none text-base"
+            />
+            <div className="flex justify-between items-center mt-2 mb-5">
+              <div className="text-[11px] text-soft">
+                Tell us what you had — portion, sides, drinks, anything.
+              </div>
+              <div className="text-[11px] text-soft">{description.length}/240</div>
+            </div>
+
+            <button
+              onClick={submitDescription}
+              disabled={busy || !description.trim()}
+              className="ee-btn-mango w-full disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {busy ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
+                  Reading your meal…
+                </>
+              ) : (
+                <>
+                  Log this meal <Sparkles size={16} />
+                </>
+              )}
+            </button>
+            <div className="text-[11px] text-soft text-center mt-2">
+              AI matches it to a known dish and gives a quick insight
             </div>
           </motion.div>
         )}
