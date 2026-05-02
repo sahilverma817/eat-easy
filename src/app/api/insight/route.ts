@@ -55,7 +55,11 @@ Do not use emojis. Do not give medical advice. Do not mention calories or macros
       const res = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
-        config: { temperature: 0.7, maxOutputTokens: 120 },
+        config: {
+          temperature: 0.7,
+          maxOutputTokens: 200,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       });
       const text = (res.text || "").trim();
       if (!text) return NextResponse.json({ insight: fallback });

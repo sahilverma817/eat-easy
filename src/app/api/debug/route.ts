@@ -22,7 +22,11 @@ export async function GET() {
       const res = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: "Reply with exactly the word: ok",
-        config: { temperature: 0, maxOutputTokens: 10 },
+        config: {
+          temperature: 0,
+          maxOutputTokens: 50,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       });
       out.geminiTest = {
         ok: true,
