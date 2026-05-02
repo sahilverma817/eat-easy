@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="44" fill="#F5B400"/>
+  <circle cx="96" cy="80" r="34" fill="#FFF8EC"/>
+  <circle cx="84" cy="76" r="4" fill="#2A2A2A"/>
+  <circle cx="108" cy="76" r="4" fill="#2A2A2A"/>
+  <path d="M82 92 Q96 102 110 92" stroke="#2A2A2A" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <rect x="58" y="118" width="76" height="40" rx="20" fill="#3FA34D"/>
+  <text x="96" y="178" font-family="sans-serif" font-size="14" font-weight="700" fill="#2A2A2A" text-anchor="middle">EAT EASY</text>
+</svg>

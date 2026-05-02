@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #FFF8EC;
+  --surface: #FFFDF8;
+  --card: #F1E4CB;
+  --ink: #2A2A2A;
+  --muted: #6B6155;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-display {
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+@layer components {
+  .ee-card {
+    @apply bg-white rounded-3xl shadow-soft;
+  }
+  .ee-btn-primary {
+    @apply bg-charcoal text-white rounded-full px-6 py-3 font-semibold transition active:scale-95 hover:bg-black;
+  }
+  .ee-btn-mango {
+    @apply bg-mango text-charcoal rounded-full px-6 py-3 font-semibold transition active:scale-95 shadow-soft;
+  }
+  .ee-btn-outline {
+    @apply border border-charcoal/15 bg-white rounded-full px-6 py-3 font-semibold transition active:scale-95 text-charcoal;
+  }
+  .ee-chip {
+    @apply px-3 py-1.5 rounded-full bg-roti text-charcoal text-sm font-medium;
+  }
+  .ee-pill {
+    @apply px-3 py-1 rounded-full bg-mint/30 text-leaf text-xs font-semibold uppercase tracking-wider;
+  }
+}
+
+/* hide scrollbars on horizontal food lists */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* phone-like container on desktop */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--bg);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    border-left: 1px solid rgba(42,42,42,0.06);
+    border-right: 1px solid rgba(42,42,42,0.06);
+    box-shadow: 0 0 60px rgba(42,42,42,0.04);
+  }
+}
