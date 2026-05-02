@@ -254,7 +254,7 @@ function Modal({
       className="fixed inset-0 z-40 bg-black/40 flex items-end justify-center"
       onClick={onClose}
     >
-      <div className="app-shell pointer-events-auto">
+      <div className="w-full max-w-[480px] mx-auto pointer-events-auto">
         <div
           onClick={(e) => e.stopPropagation()}
           className="bg-curd rounded-t-3xl p-6 pb-8 animate-in"

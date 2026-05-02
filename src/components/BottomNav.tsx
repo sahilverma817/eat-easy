@@ -16,7 +16,7 @@ export function BottomNav() {
   const path = usePathname();
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
-      <div className="app-shell pointer-events-auto">
+      <div className="max-w-[480px] mx-auto pointer-events-auto">
         <div className="m-3 mb-4 ee-card flex items-center justify-around py-2 px-1 backdrop-blur-md bg-white/95">
           {ITEMS.map(({ href, label, icon: Icon }) => {
             const active = path === href || (href === "/log" && path?.startsWith("/log"));
