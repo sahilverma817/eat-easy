@@ -78,4 +78,52 @@ export type PublicUser = Pick<
 
 export type FriendView = PublicUser & {
   avatarState: AvatarState;
+  recap: string;
+};
+
+export type FeedActor = {
+  username: string;
+  displayName: string;
+  avatarLevel: number;
+  unlockedAccessories: string[];
+};
+
+export type FeedEvent =
+  | {
+      type: "meal";
+      from: FeedActor;
+      timestamp: string;
+      meal: Pick<Meal, "foodName" | "mealType" | "scoreChange">;
+    }
+  | {
+      type: "challenge";
+      from: FeedActor;
+      timestamp: string;
+      challengeId: string;
+    }
+  | {
+      type: "streak";
+      from: FeedActor;
+      timestamp: string;
+      streak: number;
+    };
+
+export type WeekStats = {
+  daysLogged: number;
+  mealsLogged: number;
+  challengesDone: number;
+};
+
+export type FriendProfile = PublicUser & {
+  avatarState: AvatarState;
+  streak: number;
+  longestStreak: number;
+  coins: number;
+  waterCount: number;
+  badges: string[];
+  todayDate: string;
+  todayMeals: Meal[];
+  recentMeals: Meal[];
+  weekStats: WeekStats;
+  recap: string;
 };

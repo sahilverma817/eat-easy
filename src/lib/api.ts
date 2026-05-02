@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR, { mutate } from "swr";
-import type { User, Nudge, FriendView } from "./types";
+import type { User, Nudge, FriendView, FeedEvent, FriendProfile } from "./types";
 
 export const fetcher = async (url: string) => {
   const res = await fetch(url, { credentials: "include" });
@@ -25,9 +25,18 @@ export function useMe() {
 export function useFriends() {
   return useSWR<{
     friends: FriendView[];
+    feed: FeedEvent[];
     requestsIn: { username: string; displayName: string }[];
     requestsOut: string[];
   }>("/api/friends", fetcher, { refreshInterval: 30000 });
+}
+
+export function useFriendProfile(username: string | null | undefined) {
+  return useSWR<{ profile: FriendProfile }>(
+    username ? `/api/friends/${username}` : null,
+    fetcher,
+    { refreshInterval: 30000 }
+  );
 }
 
 export async function postJSON<T = any>(url: string, body: any): Promise<T> {
